@@ -10,20 +10,37 @@ afterAll(() => db.end())
 
 describe("NC news api", () => {
     describe("/api", () => {
-        describe("/topics", () => {
-            describe("GET", () => {
-                it("200: responds an array of topic objects", () => {
+        describe("GET", () => {
+            describe("200:", () => {
+                it("responds with a json file of all the api endpoint information", () => {
                     return request(app)
-                        .get('/api/topics')
+                        .get('/api')
                         .expect(200)
                         .then(({ body }) => {
-                            expect(Array.isArray(body)).toBe(true)
-                            body.forEach((topic) => {
-                                expect(topic).toHaveProperty("slug")
-                                expect(topic).toHaveProperty("description")
-                            })
+                            expect(body).toHaveProperty("GET /api")
+                            expect(body).toHaveProperty("GET /api/topics")
+                            expect(body).toHaveProperty("GET /api/articles")
                         })
                 })
+            })
+        })
+        describe("/topics", () => {
+            describe("GET", () => {
+                describe("200:", () => {
+                    it("responds with an array of topic objects", () => {
+                        return request(app)
+                            .get('/api/topics')
+                            .expect(200)
+                            .then(({ body }) => {
+                                expect(Array.isArray(body)).toBe(true)
+                                body.forEach((topic) => {
+                                    expect(topic).toHaveProperty("slug")
+                                    expect(topic).toHaveProperty("description")
+                                })
+                            })
+                    })
+                })
+
             })
         })
     })
