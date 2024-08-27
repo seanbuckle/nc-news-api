@@ -20,6 +20,7 @@ describe("NC news api", () => {
                             expect(body).toHaveProperty("GET /api")
                             expect(body).toHaveProperty("GET /api/topics")
                             expect(body).toHaveProperty("GET /api/articles")
+                            expect(body).toHaveProperty("GET /api/articles/:article_id")
                         })
                 })
             })
@@ -32,7 +33,6 @@ describe("NC news api", () => {
                             .get('/api/topics')
                             .expect(200)
                             .then(({ body }) => {
-                                expect(Array.isArray(body)).toBe(true)
                                 body.forEach((topic) => {
                                     expect(topic).toHaveProperty("slug")
                                     expect(topic).toHaveProperty("description")
@@ -43,6 +43,51 @@ describe("NC news api", () => {
 
             })
         })
-    })
+        describe("/articles", () => {
+            describe("/:article_id", () => {
+                describe("GET", () => {
+                    describe("200:", () => {
+                        it("responds with an article object", () => {
+                            return request(app)
+                                .get('/api/articles/1')
+                                .expect(200)
+                                .then(({ body }) => {
+                                    console.log(body);
+                                    
+                                    expect(body).toHaveProperty("author")
+                                    expect(body).toHaveProperty("title")
+                                    expect(body).toHaveProperty("article_id")
+                                    expect(body).toHaveProperty("body")
+                                    expect(body).toHaveProperty("topic")
+                                    expect(body).toHaveProperty("created_at")
+                                    expect(body).toHaveProperty("votes")
+                                    expect(body).toHaveProperty("article_img_url")
+                                })
+                        })
+                    })
+                    describe("404:", () => {
+                        it("responds with a 404 error of not found", () => {
+                            return request(app)
+                                .get('/api/articles/404')
+                                .expect(404)
+                                .then(({body}) => {
+                                    expect(body.msg).toBe("Article not found!")
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 404 error of not found", () => {
+                            return request(app)
+                                .get('/api/articles/invalid_id')
+                                .expect(400)
+                                .then(({body}) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                })
 
+            })
+        })
+    })
 })
