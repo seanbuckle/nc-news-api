@@ -79,7 +79,7 @@ describe("NC news api", () => {
                                 .then(({ body }) => {
                                     expect(body).toHaveProperty("author")
                                     expect(body).toHaveProperty("title")
-                                    expect(body).toHaveProperty("article_id")
+                                    expect(body).toHaveProperty("article_id", 1)
                                     expect(body).toHaveProperty("body")
                                     expect(body).toHaveProperty("topic")
                                     expect(body).toHaveProperty("created_at")
@@ -102,6 +102,70 @@ describe("NC news api", () => {
                         it("responds with a 400 error of bad request", () => {
                             return request(app)
                                 .get('/api/articles/invalid_id')
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                })
+                describe("PATCH", () => {
+                    describe("200:", () => {
+                        it("responds with a updated article", () => {
+                            return request(app)
+                                .patch('/api/articles/1')
+                                .send({ inc_votes: 1 })
+                                .expect(200)
+                                .then(({ body }) => {
+                                    expect(body).toHaveProperty("author")
+                                    expect(body).toHaveProperty("title")
+                                    expect(body).toHaveProperty("article_id", 1)
+                                    expect(body).toHaveProperty("body")
+                                    expect(body).toHaveProperty("topic")
+                                    expect(body).toHaveProperty("created_at")
+                                    expect(body).toHaveProperty("votes", 101)
+                                    expect(body).toHaveProperty("article_img_url")
+                                })
+                        })
+                    })
+                    describe("404:", () => {
+                        it("responds with a 404 error of not found", () => {
+                            return request(app)
+                                .patch('/api/articles/404')
+                                .send({ inc_votes: 1 })
+                                .expect(404)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Article not found!")
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 400 error of bad request", () => {
+                            return request(app)
+                                .patch('/api/articles/invalid_id')
+                                .send({ inc_votes: 1 })
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 400 error when inc_vote missing", () => {
+                            return request(app)
+                                .patch('/api/articles/1')
+                                .send({})
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 400 error when inc_vote results in less than 0 votes", () => {
+                            return request(app)
+                                .patch('/api/articles/1')
+                                .send({inc_votes: -400})
                                 .expect(400)
                                 .then(({ body }) => {
                                     expect(body.msg).toBe("Bad request!")
@@ -157,7 +221,7 @@ describe("NC news api", () => {
                                     .post('/api/articles/1/comments')
                                     .send({ username: 'icellusedkars', body: 'Re-reading this article. Again!' })
                                     .expect(201)
-                                    .then(({body}) => {
+                                    .then(({ body }) => {
                                         expect(body).toHaveProperty("comment_id")
                                         expect(body).toHaveProperty("votes")
                                         expect(body).toHaveProperty("created_at")
@@ -173,7 +237,7 @@ describe("NC news api", () => {
                                     .post('/api/articles/1/comments')
                                     .send({ body: 'Re-reading this article. Again!' })
                                     .expect(400)
-                                    .then(({body}) => {
+                                    .then(({ body }) => {
                                         expect(body.msg).toBe("Bad request!")
                                     })
                             })
@@ -182,7 +246,7 @@ describe("NC news api", () => {
                                     .post('/api/articles/1/comments')
                                     .send({ username: 'icellusedkars' })
                                     .expect(400)
-                                    .then(({body}) => {
+                                    .then(({ body }) => {
                                         expect(body.msg).toBe("Bad request!")
                                     })
                             })
