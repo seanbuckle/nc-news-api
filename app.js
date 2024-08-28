@@ -6,7 +6,7 @@ app.use(express.json())
 const { getApi } = require("./controllers/api.controller")
 const { getTopics } = require("./controllers/topics.controller")
 const { getArticles,getArticlesById,patchArticlesById } = require("./controllers/article.controller")
-const { getCommentsById,postCommentsById } = require("./controllers/comments.controller")
+const { getCommentsById,postCommentsById, deleteCommentById} = require("./controllers/comments.controller")
 
 
 app.get("/api", getApi);
@@ -16,12 +16,14 @@ app.get("/api/articles/:article_id", getArticlesById);
 app.patch("/api/articles/:article_id", patchArticlesById);
 app.get("/api/articles/:article_id/comments", getCommentsById);
 app.post("/api/articles/:article_id/comments", postCommentsById);
+app.delete("/api/comments/:comment_id", deleteCommentById);
+
 
 
 
 app.use((err, req, res, next) => {
     if (err.status) {
-        res.status(err.status).send(err)
+        res.status(err.status).send({ msg: err.msg })
     } else {
         next(err)
     }
@@ -36,7 +38,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    console.log(err)
     if (err.status === 404) {
         res.status(404).send({ msg: "Not found" });
     } else {

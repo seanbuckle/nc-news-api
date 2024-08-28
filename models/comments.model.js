@@ -16,11 +16,17 @@ exports.selectCommentsById = (article_id) => {
 }
 
 exports.insertCommentsById = (article_id, username, body) => {
-    if (!username || !body){
-        return Promise.reject({status: 400, msg: "Bad request!"})
+    if (!username || !body) {
+        return Promise.reject({ status: 400, msg: "Bad request!" })
     }
-    const query = format(`INSERT INTO comments (body,author,article_id) VALUES (%L) RETURNING *;`, [body,username,article_id])
-    return db.query(query).then(({rows}) => {
+    const query = format(`INSERT INTO comments (body,author,article_id) VALUES (%L) RETURNING *;`, [body, username, article_id])
+    return db.query(query).then(({ rows }) => {
         return rows[0]
     })
 }
+
+
+exports.removeCommentById = (comment_id) => {
+    const query = format(`DELETE FROM comments WHERE comment_id = %L AND EXISTS (SELECT 1 FROM comments WHERE comment_id = %L);`, comment_id,comment_id);
+    return db.query(query)
+};

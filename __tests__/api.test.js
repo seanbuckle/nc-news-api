@@ -255,5 +255,26 @@ describe("NC news api", () => {
                 })
             })
         })
+        describe("/comments/:comment_id", () => {
+            describe("DELETE", () => {
+                describe("204:", () => {
+                    it("responds with a 204 error", () => {
+                        return request(app)
+                            .delete('/api/comments/1')
+                            .expect(204)
+                    })
+                })
+                describe("400:", () => {
+                    it("responds with a 400 error of bad request", () => {
+                        return request(app)
+                            .delete('/api/comments/invalid_id')
+                            .expect(400)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("Bad request!")
+                            })
+                    })
+                })
+            })
+        })
     })
 })
