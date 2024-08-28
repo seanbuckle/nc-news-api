@@ -3,13 +3,14 @@ const app = express();
 
 const { getApi } = require("./controllers/api.controller")
 const { getTopics } = require("./controllers/topics.controller")
-const { getArticles } = require("./controllers/article.controller")
+const { getArticles,getArticlesById } = require("./controllers/article.controller")
 
 
 
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
-app.get("/api/articles/:article_id", getArticles);
+app.get("/api/articles", getArticles);
+app.get("/api/articles/:article_id", getArticlesById);
 
 
 

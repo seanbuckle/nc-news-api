@@ -44,6 +44,29 @@ describe("NC news api", () => {
             })
         })
         describe("/articles", () => {
+            describe("GET", () => {
+                describe("200:", () => {
+                    it("responds with an array of article objects", () => {
+                        return request(app)
+                            .get('/api/articles')
+                            .expect(200)
+                            .then(({ body }) => {
+                                expect(body).toBeSortedBy('created_at', { descending: true });
+                                body.forEach((article) => {
+                                    expect(article).toHaveProperty("author")
+                                    expect(article).toHaveProperty("title")
+                                    expect(article).toHaveProperty("article_id")
+                                    expect(article).toHaveProperty("topic")
+                                    expect(article).toHaveProperty("created_at")
+                                    expect(article).toHaveProperty("votes")
+                                    expect(article).toHaveProperty("article_img_url")
+                                    expect(article).toHaveProperty("comment_count")
+                                })
+
+                            })
+                    })
+                })
+            })
             describe("/:article_id", () => {
                 describe("GET", () => {
                     describe("200:", () => {
@@ -52,8 +75,6 @@ describe("NC news api", () => {
                                 .get('/api/articles/1')
                                 .expect(200)
                                 .then(({ body }) => {
-                                    console.log(body);
-                                    
                                     expect(body).toHaveProperty("author")
                                     expect(body).toHaveProperty("title")
                                     expect(body).toHaveProperty("article_id")
@@ -70,7 +91,7 @@ describe("NC news api", () => {
                             return request(app)
                                 .get('/api/articles/404')
                                 .expect(404)
-                                .then(({body}) => {
+                                .then(({ body }) => {
                                     expect(body.msg).toBe("Article not found!")
                                 })
                         })
@@ -80,7 +101,7 @@ describe("NC news api", () => {
                             return request(app)
                                 .get('/api/articles/invalid_id')
                                 .expect(400)
-                                .then(({body}) => {
+                                .then(({ body }) => {
                                     expect(body.msg).toBe("Bad request!")
                                 })
                         })
