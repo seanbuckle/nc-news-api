@@ -21,6 +21,8 @@ describe("NC news api", () => {
                             expect(body).toHaveProperty("GET /api/topics")
                             expect(body).toHaveProperty("GET /api/articles")
                             expect(body).toHaveProperty("GET /api/articles/:article_id")
+                            expect(body).toHaveProperty("GET /api/articles/:article_id/comments")
+                            expect(body).toHaveProperty("POST /api/articles/:article_id/comments")
                         })
                 })
             })
@@ -143,6 +145,44 @@ describe("NC news api", () => {
                                     .get('/api/articles/invalid_id/comments')
                                     .expect(400)
                                     .then(({ body }) => {
+                                        expect(body.msg).toBe("Bad request!")
+                                    })
+                            })
+                        })
+                    })
+                    describe("POST", () => {
+                        describe("201:", () => {
+                            it("responds with an array of comment objects", () => {
+                                return request(app)
+                                    .post('/api/articles/1/comments')
+                                    .send({ username: 'icellusedkars', body: 'Re-reading this article. Again!' })
+                                    .expect(201)
+                                    .then(({body}) => {
+                                        expect(body).toHaveProperty("comment_id")
+                                        expect(body).toHaveProperty("votes")
+                                        expect(body).toHaveProperty("created_at")
+                                        expect(body).toHaveProperty("author", "icellusedkars")
+                                        expect(body).toHaveProperty("body", "Re-reading this article. Again!")
+                                        expect(body).toHaveProperty("article_id", 1)
+                                    })
+                            })
+                        })
+                        describe("400:", () => {
+                            it("responds with a 400 of bad request when missing username", () => {
+                                return request(app)
+                                    .post('/api/articles/1/comments')
+                                    .send({ body: 'Re-reading this article. Again!' })
+                                    .expect(400)
+                                    .then(({body}) => {
+                                        expect(body.msg).toBe("Bad request!")
+                                    })
+                            })
+                            it("responds with a 400 of bad request when missing body", () => {
+                                return request(app)
+                                    .post('/api/articles/1/comments')
+                                    .send({ username: 'icellusedkars' })
+                                    .expect(400)
+                                    .then(({body}) => {
                                         expect(body.msg).toBe("Bad request!")
                                     })
                             })
