@@ -22,7 +22,6 @@ exports.selectArticles = () => {
     })
 }
 
-
 exports.selectArticlesById = (article_id) => {
     if (Number(article_id) === NaN) {
         return Promise.reject({ status: 400, msg: "Bad request!" })
@@ -35,3 +34,21 @@ exports.selectArticlesById = (article_id) => {
         return rows[0]
     })
 }
+
+exports.updateArticleById = (article_id,inc_votes) => {
+    const err400 = { status: 400, msg: "Bad request!" }
+    if (Number(article_id) === NaN || !inc_votes) {
+         return Promise.reject(err400)
+    }
+    const query = format(`UPDATE articles SET votes = votes + %L WHERE article_id = %L RETURNING *`, inc_votes,article_id)
+    return db.query(query).then(({ rows }) => {
+        if (rows.length === 0) {
+             return Promise.reject({ status: 404, msg: "Article not found!" })
+        }
+        if (rows[0].votes < 0){
+            return Promise.reject(err400)
+        }
+        return rows[0];
+    })
+}
+
