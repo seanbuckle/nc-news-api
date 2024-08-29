@@ -26,6 +26,7 @@
     "description": "serves an array of all articles",
     "queries": [
       {
+        "topic": ["mitch", "cats"],
         "sort_by": [
           "author",
           "title",

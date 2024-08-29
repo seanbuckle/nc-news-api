@@ -2,31 +2,48 @@ const db = require("../db/connection")
 const format = require("pg-format")
 
 
-exports.selectArticles = (sort_by, order) => {
-    const sort = ["author","title","article_id","topic","created_at","votes","article_img_url"]
-    const orderBy = ["asc","desc"]
-    const err400 = {status: 400, msg: "Bad request!"}
-    let baseQuery = "SELECT * FROM articles"
-    if (!sort_by){
-        baseQuery += " ORDER BY created_at"
-    } else if(sort.includes(sort_by)){
-        baseQuery += ` ORDER BY ${sort_by}`
-    } else {
-        return Promise.reject(err400)
-    }
-    if (!order){
-        baseQuery += " desc"
-    } else if(orderBy.includes(order)){
-        baseQuery += ` ${order}`
-    } else {
-        return Promise.reject(err400)
-    }
-    baseQuery = format(baseQuery)
-    return db.query(baseQuery).then(({ rows }) => {
+exports.selectArticles = (topic, sort_by, order) => {
+    const columns = []
+    return db.query("SELECT * FROM articles").then(({ rows }) => {
+        columns.push(...Object.keys(rows[0]))
+        const topics = []
         rows.forEach((article) => {
-            delete article.body
+            topics.push(article.topic)
         })
-        return rows
+        return topics
+    }).then((topics) => {
+        const orderBy = ["asc", "desc"]
+        const err400 = { status: 400, msg: "Bad request!" }
+        let baseQuery = "SELECT * FROM articles"
+        if (topic){
+            if (topics.includes(topic)){
+                baseQuery += ` WHERE topic = %L`
+            } else {
+                return Promise.reject(err400)
+            }
+        }
+        if (!sort_by) {
+            baseQuery += " ORDER BY created_at"
+        } else if (columns.includes(sort_by)) {
+            baseQuery += ` ORDER BY ${sort_by}`
+        } else {
+            return Promise.reject(err400)
+        }
+        if (!order) {
+            baseQuery += " desc"
+        } else if (orderBy.includes(order)) {
+            baseQuery += ` ${order}`
+        } else {
+            return Promise.reject(err400)
+        }
+        baseQuery = format(baseQuery,topic)
+        return db.query(baseQuery).then(({ rows }) => {
+            rows.forEach((article) => {
+                delete article.body
+            })
+            return rows
+        })
+
     }).then((articles) => {
         return Promise.all(articles.map(article => {
             const query = format(`SELECT COUNT(*) FROM comments WHERE article_id = %L`, [article.article_id]);
@@ -35,7 +52,7 @@ exports.selectArticles = (sort_by, order) => {
                 return article;
             });
         }));
-        
+
     }).then((updatedArticles) => {
         return updatedArticles
     })
@@ -54,17 +71,17 @@ exports.selectArticlesById = (article_id) => {
     })
 }
 
-exports.updateArticleById = (article_id,inc_votes) => {
+exports.updateArticleById = (article_id, inc_votes) => {
     const err400 = { status: 400, msg: "Bad request!" }
     if (Number(article_id) === NaN || !inc_votes) {
-         return Promise.reject(err400)
+        return Promise.reject(err400)
     }
-    const query = format(`UPDATE articles SET votes = votes + %L WHERE article_id = %L RETURNING *`, inc_votes,article_id)
+    const query = format(`UPDATE articles SET votes = votes + %L WHERE article_id = %L RETURNING *`, inc_votes, article_id)
     return db.query(query).then(({ rows }) => {
         if (rows.length === 0) {
-             return Promise.reject({ status: 404, msg: "Article not found!" })
+            return Promise.reject({ status: 404, msg: "Article not found!" })
         }
-        if (rows[0].votes < 0){
+        if (rows[0].votes < 0) {
             return Promise.reject(err400)
         }
         return rows[0];

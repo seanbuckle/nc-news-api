@@ -69,7 +69,42 @@ describe("NC news api", () => {
                     })
                 })
             })
-            describe("/sort_by=:sort_value&order=:order_value", () => {
+            describe("/?topic=:topic_value", () => {
+                describe("GET", () => {
+                    describe("200:", () => {
+                        it("responds with an array of sorted article objects", () => {
+                            return request(app)
+                                .get('/api/articles?topic=mitch')
+                                .expect(200)
+                                .then(({ body }) => {
+                                    expect(body).toBeSortedBy('created_at', { descending: true });
+                                    body.forEach((article) => {
+                                        expect(article).toHaveProperty("author")
+                                        expect(article).toHaveProperty("title")
+                                        expect(article).toHaveProperty("article_id")
+                                        expect(article).toHaveProperty("topic","mitch")
+                                        expect(article).toHaveProperty("created_at")
+                                        expect(article).toHaveProperty("votes")
+                                        expect(article).toHaveProperty("article_img_url")
+                                        expect(article).toHaveProperty("comment_count")
+                                    })
+
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 400 error of bad request when given invalid topic", () => {
+                            return request(app)
+                                .get('/api/articles/?topic=400')
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                })
+            })
+            describe("/?sort_by=:sort_value&order=:order_value", () => {
                 describe("GET", () => {
                     describe("200:", () => {
                         it("responds with an array of sorted article objects", () => {
