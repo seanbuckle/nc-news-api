@@ -69,6 +69,96 @@ describe("NC news api", () => {
                     })
                 })
             })
+            describe("/sort_by=:sort_value&order=:order_value", () => {
+                describe("GET", () => {
+                    describe("200:", () => {
+                        it("responds with an array of sorted article objects", () => {
+                            return request(app)
+                                .get('/api/articles?sort_by=author&order=asc')
+                                .expect(200)
+                                .then(({ body }) => {
+                                    expect(body).toBeSortedBy('author', { descending: false });
+                                    body.forEach((article) => {
+                                        expect(article).toHaveProperty("author")
+                                        expect(article).toHaveProperty("title")
+                                        expect(article).toHaveProperty("article_id")
+                                        expect(article).toHaveProperty("topic")
+                                        expect(article).toHaveProperty("created_at")
+                                        expect(article).toHaveProperty("votes")
+                                        expect(article).toHaveProperty("article_img_url")
+                                        expect(article).toHaveProperty("comment_count")
+                                    })
+
+                                })
+                        })
+                        it("responds with an array of sorted article objects with no order set only sort_by", () => {
+                            return request(app)
+                                .get('/api/articles?sort_by=author')
+                                .expect(200)
+                                .then(({ body }) => {
+                                    expect(body).toBeSortedBy('author', { descending: true });
+                                    body.forEach((article) => {
+                                        expect(article).toHaveProperty("author")
+                                        expect(article).toHaveProperty("title")
+                                        expect(article).toHaveProperty("article_id")
+                                        expect(article).toHaveProperty("topic")
+                                        expect(article).toHaveProperty("created_at")
+                                        expect(article).toHaveProperty("votes")
+                                        expect(article).toHaveProperty("article_img_url")
+                                        expect(article).toHaveProperty("comment_count")
+                                    })
+
+                                })
+                        })
+                        it("responds with an array of sorted article objects order set and no sort_by", () => {
+                            return request(app)
+                                .get('/api/articles?order=asc')
+                                .expect(200)
+                                .then(({ body }) => {
+                                    expect(body).toBeSortedBy('created_at', { descending: false });
+                                    body.forEach((article) => {
+                                        expect(article).toHaveProperty("author")
+                                        expect(article).toHaveProperty("title")
+                                        expect(article).toHaveProperty("article_id")
+                                        expect(article).toHaveProperty("topic")
+                                        expect(article).toHaveProperty("created_at")
+                                        expect(article).toHaveProperty("votes")
+                                        expect(article).toHaveProperty("article_img_url")
+                                        expect(article).toHaveProperty("comment_count")
+                                    })
+
+                                })
+                        })
+                    })
+                    describe("400:", () => {
+                        it("responds with a 400 error of bad request when both sort_by and order invalid", () => {
+                            return request(app)
+                                .get('/api/articles/?sort_by=400&order=400')
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                        it("responds with a 400 error of bad request when order invalid", () => {
+                            return request(app)
+                                .get('/api/articles/?sort_by=author&order=400')
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                        it("responds with a 400 error of bad request when sort_by invalid", () => {
+                            return request(app)
+                                .get('/api/articles/?sort_by=404&order=asc')
+                                .expect(400)
+                                .then(({ body }) => {
+                                    expect(body.msg).toBe("Bad request!")
+                                })
+                        })
+                    })
+                })
+
+            })
             describe("/:article_id", () => {
                 describe("GET", () => {
                     describe("200:", () => {
@@ -165,7 +255,7 @@ describe("NC news api", () => {
                         it("responds with a 400 error when inc_vote results in less than 0 votes", () => {
                             return request(app)
                                 .patch('/api/articles/1')
-                                .send({inc_votes: -400})
+                                .send({ inc_votes: -400 })
                                 .expect(400)
                                 .then(({ body }) => {
                                     expect(body.msg).toBe("Bad request!")

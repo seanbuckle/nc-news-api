@@ -2,8 +2,27 @@ const db = require("../db/connection")
 const format = require("pg-format")
 
 
-exports.selectArticles = () => {
-    return db.query("SELECT * FROM articles ORDER BY created_at DESC").then(({ rows }) => {
+exports.selectArticles = (sort_by, order) => {
+    const sort = ["author","title","article_id","topic","created_at","votes","article_img_url"]
+    const orderBy = ["asc","desc"]
+    const err400 = {status: 400, msg: "Bad request!"}
+    let baseQuery = "SELECT * FROM articles"
+    if (!sort_by){
+        baseQuery += " ORDER BY created_at"
+    } else if(sort.includes(sort_by)){
+        baseQuery += ` ORDER BY ${sort_by}`
+    } else {
+        return Promise.reject(err400)
+    }
+    if (!order){
+        baseQuery += " desc"
+    } else if(orderBy.includes(order)){
+        baseQuery += ` ${order}`
+    } else {
+        return Promise.reject(err400)
+    }
+    baseQuery = format(baseQuery)
+    return db.query(baseQuery).then(({ rows }) => {
         rows.forEach((article) => {
             delete article.body
         })

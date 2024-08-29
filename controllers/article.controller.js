@@ -2,8 +2,9 @@ const { selectArticles, selectArticlesById, updateArticleById } = require("../mo
 
 
 exports.getArticles = (req, res, next) => {
-    const { article_id } = req.params
-    selectArticles(article_id).then((articles) => {
+    const { sort_by, order } = req.query
+    
+    selectArticles(sort_by, order).then((articles) => {
         res.status(200).send(articles)
     }).catch(next)
 }
