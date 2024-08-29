@@ -276,5 +276,30 @@ describe("NC news api", () => {
                 })
             })
         })
+        describe("/users", () => {
+            describe("GET", () => {
+                describe("200:", () => {
+                    it("responds with an array of user objects", () => {
+                        return request(app)
+                            .get('/api/users')
+                            .expect(200)
+                            .then(({ body }) => {
+                                body.forEach((user) => {
+                                    expect(user).toHaveProperty("username")
+                                    expect(user).toHaveProperty("name")
+                                    expect(user).toHaveProperty("avatar_url")
+                                })
+                            })
+                    })
+                })
+                describe("404:", () => {
+                    it("responds with 404 error", () => {
+                        return request(app)
+                            .get('/api/404')
+                            .expect(404)
+                    })
+                })
+            })
+        })
     })
 })
