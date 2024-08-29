@@ -4,12 +4,14 @@ const app = express();
 app.use(express.json())
 
 const { getApi } = require("./controllers/api.controller")
+const { getUsers }  = require("./controllers/users.controller")
 const { getTopics } = require("./controllers/topics.controller")
-const { getArticles,getArticlesById,patchArticlesById } = require("./controllers/article.controller")
-const { getCommentsById,postCommentsById, deleteCommentById} = require("./controllers/comments.controller")
+const { getArticles, getArticlesById, patchArticlesById } = require("./controllers/article.controller")
+const { getCommentsById, postCommentsById, deleteCommentById } = require("./controllers/comments.controller")
 
 
 app.get("/api", getApi);
+app.get("/api/users", getUsers);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticlesById);
@@ -31,7 +33,7 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
     if (err.code === '22P02') {
-        res.status(400).send({msg: "Bad request!"});
+        res.status(400).send({ msg: "Bad request!" });
     } else {
         next(err)
     }
