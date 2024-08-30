@@ -82,7 +82,7 @@ describe("NC news api", () => {
                                         expect(article).toHaveProperty("author")
                                         expect(article).toHaveProperty("title")
                                         expect(article).toHaveProperty("article_id")
-                                        expect(article).toHaveProperty("topic","mitch")
+                                        expect(article).toHaveProperty("topic", "mitch")
                                         expect(article).toHaveProperty("created_at")
                                         expect(article).toHaveProperty("votes")
                                         expect(article).toHaveProperty("article_img_url")
@@ -423,6 +423,30 @@ describe("NC news api", () => {
                         return request(app)
                             .get('/api/404')
                             .expect(404)
+                    })
+                })
+            })
+            describe("/:username", () => {
+                describe("200:", () => {
+                    it("responds with a user object", () => {
+                        return request(app)
+                            .get('/api/users/icellusedkars')
+                            .expect(200)
+                            .then(({ body }) => {
+                                expect(body).toHaveProperty("username", "icellusedkars")
+                                expect(body).toHaveProperty("name")
+                                expect(body).toHaveProperty("avatar_url")
+                            })
+                    })
+                })
+                describe("404:", () => {
+                    it("responds with 404 error when an invalid username", () => {
+                        return request(app)
+                            .get('/api/users/404')
+                            .expect(404)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("User not found!")
+                            })
                     })
                 })
             })
