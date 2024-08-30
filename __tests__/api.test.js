@@ -378,30 +378,82 @@ describe("NC news api", () => {
                             })
                         })
                     })
-                })
-            })
-        })
-        describe("/comments/:comment_id", () => {
-            describe("DELETE", () => {
-                describe("204:", () => {
-                    it("responds with a 204 error", () => {
-                        return request(app)
-                            .delete('/api/comments/1')
-                            .expect(204)
-                    })
-                })
-                describe("400:", () => {
-                    it("responds with a 400 error of bad request", () => {
-                        return request(app)
-                            .delete('/api/comments/invalid_id')
-                            .expect(400)
-                            .then(({ body }) => {
-                                expect(body.msg).toBe("Bad request!")
+                    describe("/:comment_id", () => {
+                        describe("PATCH", () => {
+                            describe("200:", () => {
+                                it("responds with a updated votes on comment", () => {
+                                    return request(app)
+                                        .patch('/api/comments/1')
+                                        .send({ inc_votes: 1 })
+                                        .expect(200)
+                                        .then(({ body }) => {
+                                            expect(body).toHaveProperty("comment_id",1)
+                                            expect(body).toHaveProperty("body")
+                                            expect(body).toHaveProperty("votes",17)
+                                            expect(body).toHaveProperty("author")
+                                            expect(body).toHaveProperty("article_id")
+                                            expect(body).toHaveProperty("created_at")
+                                        })
+                                })
                             })
+                            describe("404:", () => {
+                                it("responds with a 404 error when comment not found", () => {
+                                    return request(app)
+                                        .patch('/api/comments/404')
+                                        .send({ inc_votes: 1 })
+                                        .expect(404)
+                                        .then(({ body }) => {
+                                            expect(body.msg).toBe("Comment not found!")
+                                        })
+                                })
+                            })
+                            describe("400:", () => {
+                                it("responds with a 400 error when invalid comment id", () => {
+                                    return request(app)
+                                        .patch('/api/comments/invalid_id')
+                                        .send({ inc_votes: 1 })
+                                        .expect(400)
+                                        .then(({ body }) => {
+                                            expect(body.msg).toBe("Bad request!")
+                                        })
+                                })
+                            })
+                            describe("400:", () => {
+                                it("responds with a 400 error when inc_vote missing", () => {
+                                    return request(app)
+                                        .patch('/api/comments/1')
+                                        .send({})
+                                        .expect(400)
+                                        .then(({ body }) => {
+                                            expect(body.msg).toBe("Bad request!")
+                                        })
+                                })
+                            })
+                        })
+                        describe("DELETE", () => {
+                            describe("204:", () => {
+                                it("responds with a 204 error", () => {
+                                    return request(app)
+                                        .delete('/api/comments/1')
+                                        .expect(204)
+                                })
+                            })
+                            describe("400:", () => {
+                                it("responds with a 400 error of bad request", () => {
+                                    return request(app)
+                                        .delete('/api/comments/invalid_id')
+                                        .expect(400)
+                                        .then(({ body }) => {
+                                            expect(body.msg).toBe("Bad request!")
+                                        })
+                                })
+                            })
+                        })
                     })
                 })
             })
         })
+
         describe("/users", () => {
             describe("GET", () => {
                 describe("200:", () => {

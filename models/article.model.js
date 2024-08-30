@@ -15,8 +15,8 @@ exports.selectArticles = (topic, sort_by, order) => {
         const orderBy = ["asc", "desc"]
         const err400 = { status: 400, msg: "Bad request!" }
         let baseQuery = "SELECT * FROM articles"
-        if (topic){
-            if (topics.includes(topic)){
+        if (topic) {
+            if (topics.includes(topic)) {
                 baseQuery += ` WHERE topic = %L`
             } else {
                 return Promise.reject(err400)
@@ -36,7 +36,7 @@ exports.selectArticles = (topic, sort_by, order) => {
         } else {
             return Promise.reject(err400)
         }
-        baseQuery = format(baseQuery,topic)
+        baseQuery = format(baseQuery, topic)
         return db.query(baseQuery).then(({ rows }) => {
             rows.forEach((article) => {
                 delete article.body
@@ -69,9 +69,9 @@ exports.selectArticlesById = (article_id) => {
         }
         const countQuery = format(`SELECT COUNT(*) FROM comments WHERE article_id = ${article_id}`)
         return db.query(countQuery)
-    }).then(({rows}) => {
+    }).then(({ rows }) => {
         const count = Number(rows[0].count)
-        return db.query(query).then(({rows}) => {
+        return db.query(query).then(({ rows }) => {
             rows[0].comment_count = count
             return rows[0]
         })
