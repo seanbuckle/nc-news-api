@@ -67,7 +67,14 @@ exports.selectArticlesById = (article_id) => {
         if (rows.length === 0) {
             return Promise.reject({ status: 404, msg: "Article not found!" })
         }
-        return rows[0]
+        const countQuery = format(`SELECT COUNT(*) FROM comments WHERE article_id = ${article_id}`)
+        return db.query(countQuery)
+    }).then(({rows}) => {
+        const count = Number(rows[0].count)
+        return db.query(query).then(({rows}) => {
+            rows[0].comment_count = count
+            return rows[0]
+        })
     })
 }
 

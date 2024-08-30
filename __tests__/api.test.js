@@ -210,6 +210,7 @@ describe("NC news api", () => {
                                     expect(body).toHaveProperty("created_at")
                                     expect(body).toHaveProperty("votes")
                                     expect(body).toHaveProperty("article_img_url")
+                                    expect(body).toHaveProperty("comment_count")
                                 })
                         })
                     })
