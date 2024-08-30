@@ -66,13 +66,14 @@
         "body": "I find this existence challenging",
         "created_at": "2020-07-09T20:11:00.000Z",
         "votes": 100,
-        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 11
       }
     }
   },
   "PATCH /api/articles/:article_id": {
-    "description": "serves an updated article object",
-    "queries": [],
+    "description": "serves an updated article object with altered votes",
+    "body": [{ "inc_votes": 1 }],
     "exampleResponse": {
       "article": {
         "article_id": 1,
@@ -118,7 +119,7 @@
     }
   },
   "DELETE /api/comments/:comment_id": {
-    "description": "serves an empty body",
+    "description": "serves an empty body when comment deleted",
     "exampleResponse": {}
   }
 }
