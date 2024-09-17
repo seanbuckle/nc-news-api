@@ -88,9 +88,6 @@ exports.updateArticleById = (article_id, inc_votes) => {
         if (rows.length === 0) {
             return Promise.reject({ status: 404, msg: "Article not found!" })
         }
-        if (rows[0].votes < 0) {
-            return Promise.reject(err400)
-        }
         return rows[0];
     })
 }

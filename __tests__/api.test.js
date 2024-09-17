@@ -287,17 +287,6 @@ describe("NC news api", () => {
                                 })
                         })
                     })
-                    describe("400:", () => {
-                        it("responds with a 400 error when inc_vote results in less than 0 votes", () => {
-                            return request(app)
-                                .patch('/api/articles/1')
-                                .send({ inc_votes: -400 })
-                                .expect(400)
-                                .then(({ body }) => {
-                                    expect(body.msg).toBe("Bad request!")
-                                })
-                        })
-                    })
                 })
                 describe("/comments", () => {
                     describe("GET", () => {
