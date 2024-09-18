@@ -19,7 +19,7 @@ exports.selectArticles = (topic, sort_by, order) => {
             if (topics.includes(topic)) {
                 baseQuery += ` WHERE topic = %L`
             } else {
-                return Promise.reject(err400)
+                return Promise.reject({ status: 404, msg: "Not Found!" })
             }
         }
         if (!sort_by) {

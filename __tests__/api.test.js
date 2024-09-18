@@ -92,13 +92,13 @@ describe("NC news api", () => {
                                 })
                         })
                     })
-                    describe("400:", () => {
+                    describe("404:", () => {
                         it("responds with a 400 error of bad request when given invalid topic", () => {
                             return request(app)
-                                .get('/api/articles/?topic=400')
-                                .expect(400)
+                                .get('/api/articles/?topic=404')
+                                .expect(404)
                                 .then(({ body }) => {
-                                    expect(body.msg).toBe("Bad request!")
+                                    expect(body.msg).toBe("Not Found!")
                                 })
                         })
                     })
