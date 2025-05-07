@@ -1,5 +1,9 @@
 name: Dependabot Auto-Merge
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   pull_request:
     # Only run this workflow on pull requests from Dependabot
