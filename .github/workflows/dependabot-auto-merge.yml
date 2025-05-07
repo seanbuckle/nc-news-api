@@ -1,0 +1,79 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    # Only run this workflow on pull requests from Dependabot
+    branches:
+      - main
+    paths:
+      - "package.json"  # Example: Only trigger on changes to package.json (Node.js)
+jobs:
+  dependabot:
+    # Use a GitHub Actions runner
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]' # IMPORTANT: Only run for Dependabot PRs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Needed for git diff
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get the list of changed files.  This is more robust.
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "CHANGED_FILES_LIST=$CHANGED_FILES" >> $GITHUB_STATE # For debugging
+
+      - name: Determine if the PR is safe to merge
+        id: should-merge
+        run: |
+          SAFE_PATHS="
+            package.json
+            package-lock.json           
+          "
+          CHANGED_FILES="${{ steps.changed-files.outputs.CHANGED_FILES }}"
+          SAFE=true
+          echo "Changed files: $CHANGED_FILES"
+          echo "Safe paths: $SAFE_PATHS"
+
+          for FILE in $CHANGED_FILES; do
+            FILE_PATH=$(echo "$FILE" | sed 's#/[^/]*$##') # Get directory
+            FILE_NAME=$(basename "$FILE") #get filename
+            echo "Checking file: $FILE"
+            is_safe=false
+            for SAFE_PATH in $SAFE_PATHS; do
+              SAFE_PATH_DIR=$(echo "$SAFE_PATH" | sed 's#/[^/]*$##') # Get directory
+              SAFE_PATH_NAME=$(basename "$SAFE_PATH") #get filename
+
+              if [[ "$(echo "$FILE" | tr '[:upper:]' '[:lower:]')" == "$(echo "$SAFE_PATH" | tr '[:upper:]' '[:lower:]')" ]] || [[ "$(echo "$FILE_PATH" | tr '[:upper:]' '[:lower:]')" == "$(echo "$SAFE_PATH_DIR" | tr '[:upper:]' '[:lower:]')" && "$(echo "$SAFE_PATH_NAME" | tr '[:upper:]' '[:lower:]')" == "$(echo "$FILE_NAME" | tr '[:upper:]' '[:lower:]')" ]]; then
+                  is_safe=true
+                  break
+              fi
+            done
+            if ! $is_safe; then
+              SAFE=false
+              echo "File '$FILE' is not in the safe list."
+              break
+            fi
+          done
+          if $SAFE; then
+            echo "All changed files are in the safe list.  Setting merge=true"
+            echo "merge=true" >> $GITHUB_OUTPUT
+            echo "MERGE_STATUS=true" >> $GITHUB_STATE #for debugging
+          else
+            echo "At least one changed file is not in the safe list.  Setting merge=false"
+            echo "merge=false" >> $GITHUB_OUTPUT
+            echo "MERGE_STATUS=false" >> $GITHUB_STATE #for debugging
+          fi
+
+      - name: Enable Auto-Merge
+        if: steps.should-merge.outputs.merge == 'true'
+        uses: github/auto-merge-action@v5
+        with:
+          merge_method: squash # or merge, or rebase
+          delete_branch: true # Delete the branch after merging (optional)
+          # Optional:  Add a commit message prefix.  Useful for filtering.
+          commit_message_prefix: "chore(deps): "
