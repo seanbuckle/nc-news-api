@@ -1,5 +1,6 @@
 # Northcoders News API
 This project is a demonstration of my database skills from the Northcoders bootcamp. It's an API that lets you get news articles, comment on them, vote up or down.
+![Screenshot of Northcoders api](screenshot.png)
 
 # Take a look
 
